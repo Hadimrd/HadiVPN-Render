@@ -100,9 +100,9 @@ public class MainActivity extends Activity {
         scroll.addView(page);
         android.content.SharedPreferences prefs = getSharedPreferences("hadi_netcheck", MODE_PRIVATE);
 
-        TextView brand = text("⌁  Hadi NetCheck", 25, TEXT, true);
+        TextView brand = text("⌁  HadiVPN Tools", 25, TEXT, true);
         page.addView(brand);
-        TextView subtitle = text("اسکن IP کلادفلر از روی همین گوشی", 14, MUTED, false);
+        TextView subtitle = text("ابزار بررسی اتصال و دریافت کانفیگ", 14, MUTED, false);
         subtitle.setPadding(0, dp(5), 0, dp(18));
         page.addView(subtitle);
 
@@ -154,13 +154,24 @@ public class MainActivity extends Activity {
         actions.addView(startButton, bp);
         actions.addView(stopButton, new LinearLayout.LayoutParams(0, dp(50), 1));
         page.addView(actions);
-        Button panelButton = button("باز کردن پنل آنلاین Hadi NetCheck", GREEN);
+        Button panelButton = button("باز کردن مرکز کانفیگ HadiVPN", GREEN);
         LinearLayout.LayoutParams panelButtonParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
         panelButtonParams.setMargins(0, dp(8), 0, dp(12));
         panelButton.setLayoutParams(panelButtonParams);
         page.addView(panelButton);
         panelButton.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://hadi-netcheck.hadimoradogt.workers.dev/"));
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://hadimrd.github.io/HadiVPN-Render/"));
+            startActivity(intent);
+        });
+
+
+        Button clientButton = button("دریافت کلاینت واقعی V2RayNG", BLUE);
+        LinearLayout.LayoutParams clientButtonParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(46));
+        clientButtonParams.setMargins(0, 0, 0, dp(10));
+        clientButton.setLayoutParams(clientButtonParams);
+        page.addView(clientButton);
+        clientButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/2dust/v2rayNG/releases/latest"));
             startActivity(intent);
         });
 
