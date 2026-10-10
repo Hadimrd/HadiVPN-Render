@@ -7,6 +7,8 @@ import android.graphics.Typeface;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +38,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
+import android.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -95,6 +97,7 @@ public class MainActivity extends Activity {
         page.setOrientation(LinearLayout.VERTICAL);
         page.setPadding(dp(18), dp(22), dp(18), dp(28));
         scroll.addView(page);
+        android.content.SharedPreferences prefs = getSharedPreferences("hadi_netcheck", MODE_PRIVATE);
 
         TextView brand = text("⌁  Hadi NetCheck", 25, TEXT, true);
         page.addView(brand);
@@ -110,17 +113,17 @@ public class MainActivity extends Activity {
 
         LinearLayout settings = card();
         settings.addView(text("SNI / دامنه TLS کانفیگ", 14, TEXT, true));
-        hostInput = edit("your-domain.example");
+        hostInput = edit(prefs.getString("sni", "your-domain.example"));
         settings.addView(hostInput);
         settings.addView(text("همان Server Name یا SNI را از کانفیگت کپی کن؛ دامنهٔ نمونه را با دامنهٔ واقعی خودت عوض کن.", 11, MUTED, false));
 
         settings.addView(text("Host header (اختیاری)", 14, TEXT, true));
-        hostHeaderInput = edit("");
+        hostHeaderInput = edit(prefs.getString("host", ""));
         settings.addView(hostHeaderInput);
         settings.addView(text("اگر Host در کانفیگ با SNI یکی است خالی بگذار؛ در غیر این صورت Host را جدا وارد کن.", 11, MUTED, false));
 
         settings.addView(text("مسیر WebSocket", 14, TEXT, true));
-        pathInput = edit("/ws");
+        pathInput = edit(prefs.getString("path", "/ws"));
         settings.addView(pathInput);
         settings.addView(text("برای کانفیگ VLESS + WebSocket + TLS همین مسیر باید با path کانفیگ برابر باشد. این نسخه gRPC یا TCP خام را بررسی نمی‌کند.", 11, MUTED, false));
 
@@ -129,11 +132,12 @@ public class MainActivity extends Activity {
         String[] counts = {"100", "250", "500"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, counts);
         countSpinner.setAdapter(adapter);
-        countSpinner.setSelection(1);
+        String savedCount = prefs.getString("count", "250");
+        countSpinner.setSelection("100".equals(savedCount) ? 0 : ("500".equals(savedCount) ? 2 : 1));
         settings.addView(countSpinner);
 
         settings.addView(text("پورت‌های TLS", 14, TEXT, true));
-        portsInput = edit("443,2053,8443");
+        portsInput = edit(prefs.getString("ports", "443,2053,8443"));
         settings.addView(portsInput);
         settings.addView(text("پورت‌های امن رایج Cloudflare: 443, 2053, 2083, 2087, 2096, 8443", 11, MUTED, false));
         page.addView(settings);
@@ -149,6 +153,15 @@ public class MainActivity extends Activity {
         actions.addView(startButton, bp);
         actions.addView(stopButton, new LinearLayout.LayoutParams(0, dp(50), 1));
         page.addView(actions);
+        Button panelButton = button("باز کردن پنل آنلاین Hadi NetCheck", GREEN);
+        LinearLayout.LayoutParams panelButtonParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
+        panelButtonParams.setMargins(0, dp(8), 0, dp(12));
+        panelButton.setLayoutParams(panelButtonParams);
+        page.addView(panelButton);
+        panelButton.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://hadi-netcheck.hadimoradogt.workers.dev/"));
+            startActivity(intent);
+        });
 
         LinearLayout statusCard = card();
         statusText = text("آماده. اسکن از اتصال فعلی گوشی انجام می‌شود.", 13, MUTED, false);
@@ -165,7 +178,7 @@ public class MainActivity extends Activity {
 
         LinearLayout resultCard = card();
         resultCard.addView(text("بهترین IPهای قابل اتصال", 18, TEXT, true));
-        resultCard.addView(text("فقط اتصال‌هایی نمایش داده می‌شوند که TLS و گواهی دامنه با موفقیت تأیید شده باشند. ۲۰ نتیجه برتر چند بار دوباره تست می‌شوند.", 12, MUTED, false));
+        resultCard.addView(text("نتیجه فقط وقتی معتبر است که گواهی TLS با SNI جور باشد و پاسخ WebSocket واقعی 101 با هدر معتبر برگردد. ۲۰ نامزد برتر سه بار دوباره بررسی می‌شوند.", 12, MUTED, false));
         resultsText = text("بعد از شروع اسکن، نتایج واقعی این شبکه اینجا می‌آیند.", 13, MUTED, false);
         resultsText.setTypeface(Typeface.MONOSPACE);
         resultsText.setPadding(0, dp(12), 0, dp(10));
@@ -272,6 +285,13 @@ public class MainActivity extends Activity {
             return;
         }
         int count = Integer.parseInt(String.valueOf(countSpinner.getSelectedItem()));
+        getSharedPreferences("hadi_netcheck", MODE_PRIVATE).edit()
+            .putString("sni", host)
+            .putString("host", headerHost)
+            .putString("path", wsPath)
+            .putString("ports", portsInput.getText().toString().trim())
+            .putString("count", String.valueOf(count))
+            .apply();
         lastHost = host;
         stopScan = false;
         startButton.setEnabled(false);
