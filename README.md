@@ -5,7 +5,9 @@
 
 ## سایت اصلی
 
-**HadiVPN Center:** https://hadimrd.github.io/HadiVPN-Render/
+**آدرس نهایی:** https://hadimrd.github.io/HadiVPN-Render/
+
+**یک‌بار باید GitHub Pages را در خود GitHub فعال کنی:** ابزار متصل اجازهٔ ایجاد تنظیم Pages را نداشت و اجرای اول با خطای دسترسی برگشت. وارد [تنظیمات Pages مخزن](https://github.com/Hadimrd/HadiVPN-Render/settings/pages) شو، در بخش *Build and deployment* گزینهٔ *Source* را روی **GitHub Actions** بگذار؛ سپس از زبانهٔ [Actions](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/deploy-pages.yml) اجرای **Publish HadiVPN to GitHub Pages** را دستی اجرا کن. پس از موفق‌شدن آن اجرا، آدرس بالا فعال می‌شود. تا پیش از این مرحله، سایت هنوز منتشر نشده است.
 
 The GitHub Pages site is the primary website and does not depend on the Cloudflare Worker. It contains a responsive mobile dashboard, public subscription mirrors, a config preview/copy tool, connection instructions, PWA install support, and links to Android tools and official V2RayNG releases.
 
