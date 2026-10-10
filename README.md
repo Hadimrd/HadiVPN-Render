@@ -2,12 +2,23 @@
 
 [![Build Hadi NetCheck APK](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml/badge.svg)](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml)
 
-## Live Cloudflare panel
+## Live panels
 
-**Open:** https://hadi-netcheck.hadimoradogt.workers.dev/
+- **VLESS config builder:** https://hadi-netcheck.hadimoradogt.workers.dev/v2ray
+- **Network diagnostics:** https://hadi-netcheck.hadimoradogt.workers.dev/
 
-The active Cloudflare Worker currently serves the Hadi NetCheck v1.3 dashboard. It includes:
-- a browser-side RTT measurement to the deployed Worker;
+### Hadi V2Ray Studio
+
+The builder creates a **VLESS + WebSocket + TLS URI** for import into clients such as V2RayNG or V2Box. It can parse an existing VLESS URI locally, populate the form, copy the generated link, and save it as a TXT file. A Base64 representation is available for local copying; it is not itself a hosted subscription URL.
+
+The form values and UUID are processed in the browser and are not submitted to the Worker by the builder. Use an actual server address, valid UUID, SNI, Host, path, and port from a compatible server configuration.
+
+**Important:** this page builds a connection link; it does not create a VPN server or guarantee that a generated link connects. Cloudflare IPs are usable only when the domain, Cloudflare proxy, and origin server are configured appropriately. The current generator supports VLESS over WebSocket + TLS.
+
+### Network diagnostics panel
+
+The diagnostics panel includes:
+- browser-side RTT measurement to the deployed Worker;
 - the public IP and available Cloudflare edge metadata seen by the Worker;
 - HTTPS reachability checks from the browser;
 - a current Cloudflare official IPv4 CIDR-list endpoint at `/api/ranges`;
@@ -34,5 +45,5 @@ The official IP-range list is refreshed when reachable and cached on-device. If 
 ## Important limitations
 
 - IP performance depends on carrier/routing, time, SNI, Host, port, and path. Results are network-specific.
-- The panel and scanner are diagnostics tools, not themselves a VPN tunnel.
+- The panel and scanner are diagnostic/configuration tools, not themselves a VPN tunnel.
 - Never commit account tokens, UUIDs, passwords, or private keys.
