@@ -106,8 +106,8 @@ public class MainActivity extends Activity {
         page.addView(subtitle);
 
         LinearLayout intro = card();
-        intro.addView(text("تست واقعی اتصال TCP + TLS", 19, TEXT, true));
-        intro.addView(text("هر IP مستقیماً از اینترنت فعلی گوشی آزمایش می‌شود. زمان از شروع اتصال TCP تا پایان TLS اندازه‌گیری می‌شود؛ این پینگ ICMP نیست، اما برای بررسی مسیر HTTPS/TLS کاربردی‌تر است.", 13, MUTED, false));
+        intro.addView(text("تست واقعی کانفیگ WebSocket + TLS", 19, TEXT, true));
+        intro.addView(text("هر IP مستقیماً از اینترنت گوشی آزمایش می‌شود: اتصال TCP، گواهی TLS با SNI واقعی و WebSocket handshake روی Host و path کانفیگ. زمان شامل کل این مراحل است؛ پینگ ICMP نیست.", 13, MUTED, false));
         intro.addView(text("برای سنجش اینترنت اپراتور خودت، VPN یا پراکسی فعلی را خاموش کن. نتیجه‌ها با SNI واردشده معتبرند؛ یک IP برای همه دامنه‌ها لزوماً «تمیز» نیست.", 12, Color.rgb(255, 207, 121), false));
         page.addView(intro);
 
@@ -374,7 +374,7 @@ public class MainActivity extends Activity {
                 runOnUiThread(() -> {
                     progressBar.setProgress((int)(done * 100.0 / Math.max(1, total)));
                     progressText.setText(done + " / " + total + " اتصال آزمایش شد");
-                    statusText.setText("در حال تست TCP + TLS روی شبکه فعلی گوشی…");
+                    statusText.setText("در حال تست TLS و handshake واقعی WebSocket روی شبکه فعلی گوشی…");
                 });
             }
         } catch (InterruptedException ignored) {
@@ -393,7 +393,7 @@ public class MainActivity extends Activity {
             return;
         }
         if (successes.isEmpty()) {
-            finishUi("هیچ IP با اتصال TLS معتبر برای این SNI پیدا نشد. ممکن است این شبکه یا دامنه انتخاب‌شده مناسب نباشد.", "", 0);
+            finishUi("هیچ IP با WebSocket handshake معتبر برای این SNI/Host/path پیدا نشد. اگر کانفیگت WS نیست یا مسیر اشتباه است، نتیجه‌ای نمایش داده نمی‌شود.", "", 0);
             return;
         }
 
@@ -434,6 +434,10 @@ public class MainActivity extends Activity {
             } else verifyPool.shutdown();
         }
 
+        if (stopScan) {
+            finishUi("اسکن در مرحلهٔ تأیید متوقف شد؛ نتیجهٔ نهایی کامل نیست.", "", verified.size());
+            return;
+        }
         if (verified.isEmpty()) {
             finishUi("هیچ IP در بازآزمایی کامل WebSocket موفق نشد. SNI، Host و مسیر را دقیقاً با کانفیگت یکی کن.", "", 0);
             return;
@@ -479,8 +483,6 @@ public class MainActivity extends Activity {
         stopButton.setEnabled(false);
         statusText.setText("در حال توقف امن اسکن…");
     }
-
-    private List<ProbeResult> unusedResults() { return new ArrayList<>(); }
 
     private ProbeResult verify(String ip, int port, String host, String headerHost, String wsPath) {
         List<Long> times = new ArrayList<>();
