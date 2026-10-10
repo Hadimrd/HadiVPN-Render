@@ -604,13 +604,13 @@ public class MainActivity extends Activity {
                 String line;
                 while ((line = br.readLine()) != null && body.length() < 10000) {
                     String trimmed = line.trim();
-                    if (trimmed.matches("\\\\d{1,3}(?:\\\\.\\\\d{1,3}){3}/\\\\d{1,2}")) body.append(trimmed).append("\n");
+                    if (trimmed.matches("\\d{1,3}(?:\\.\\d{1,3}){3}/\\d{1,2}")) body.append(trimmed).append("\n");
                 }
             }
             List<String> result = new ArrayList<>();
             for (String line : body.toString().split("\n")) {
                 String value = line.trim();
-                if (value.matches("\\\\d{1,3}(?:\\\\.\\\\d{1,3}){3}/\\\\d{1,2}")) result.add(value);
+                if (value.matches("\\d{1,3}(?:\\.\\d{1,3}){3}/\\d{1,2}")) result.add(value);
             }
             return result;
         } catch (Exception ignored) {
