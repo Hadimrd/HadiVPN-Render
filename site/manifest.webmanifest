@@ -1,0 +1,21 @@
+{
+  "name": "HadiVPN — مرکز اتصال",
+  "short_name": "HadiVPN",
+  "lang": "fa",
+  "dir": "rtl",
+  "description": "مرکز اشتراک‌های عمومی، مدیریت کانفیگ و ابزار اتصال",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#09111f",
+  "theme_color": "#0b1220",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
