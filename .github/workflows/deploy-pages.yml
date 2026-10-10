@@ -1,0 +1,72 @@
+name: Publish HadiVPN to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/deploy-pages.yml"
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout site
+        uses: actions/checkout@v4
+
+      - name: Enable/configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Download fresh community subscription feeds
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p site/feeds
+          fetch_feed() {
+            name="$1"
+            url="$2"
+            target="site/feeds/$name.txt"
+            tmp="$target.tmp"
+            echo "Fetching $name subscription..."
+            if curl --fail --location --silent --show-error --retry 3 --retry-delay 2 --max-time 120 "$url" -o "$tmp" && test -s "$tmp"; then
+              mv "$tmp" "$target"
+              echo "$name: $(wc -c < "$target") bytes"
+            else
+              rm -f "$tmp"
+              echo "::warning::Could not refresh $name feed; deployment stopped to avoid publishing an empty feed."
+              exit 1
+            fi
+          }
+          fetch_feed best "https://raw.githubusercontent.com/Alirewa/V2ray-Configs/main/sub1.txt"
+          fetch_feed backup "https://raw.githubusercontent.com/Alirewa/V2ray-Configs/main/sub2.txt"
+          fetch_feed all "https://raw.githubusercontent.com/Alirewa/V2ray-Configs/main/config.txt"
+          printf '{"updatedAt":"%s","source":"Alirewa/V2ray-Configs","mirror":"GitHub Pages"}\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > site/feeds/updated.json
+          test -s site/index.html
+          test -s site/assets/icon.svg
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
