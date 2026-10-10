@@ -233,16 +233,34 @@ public class MainActivity extends Activity {
 
     private void startScan() {
         final String rawHost = hostInput.getText().toString().trim();
+        final String rawHeader = hostHeaderInput.getText().toString().trim();
+        final String rawPath = pathInput.getText().toString().trim();
         final String host;
+        final String headerHost;
+        final String wsPath;
         final List<Integer> ports;
         try {
             if (rawHost.isEmpty() || rawHost.contains("://") || rawHost.contains("/") || rawHost.contains(":") || rawHost.contains(" ")) {
-                throw new IllegalArgumentException("SNI را فقط به‌شکل دامنه وارد کن؛ مثل www.cloudflare.com");
+                throw new IllegalArgumentException("SNI را فقط به‌شکل دامنه وارد کن.");
             }
             host = IDN.toASCII(rawHost, IDN.USE_STD3_ASCII_RULES).toLowerCase(Locale.ROOT);
             if (host.length() > 253 || !host.contains(".") || host.startsWith(".") || host.endsWith(".")) {
-                throw new IllegalArgumentException("نام دامنه معتبر نیست.");
+                throw new IllegalArgumentException("دامنه SNI معتبر نیست.");
             }
+            String candidateHeader = rawHeader.isEmpty() ? host : rawHeader;
+            if (candidateHeader.contains("://") || candidateHeader.contains("/") || candidateHeader.contains(":") ||
+                candidateHeader.contains(" ") || candidateHeader.indexOf(13) >= 0 || candidateHeader.indexOf(10) >= 0) {
+                throw new IllegalArgumentException("Host header را فقط به‌شکل دامنه وارد کن.");
+            }
+            headerHost = IDN.toASCII(candidateHeader, IDN.USE_STD3_ASCII_RULES).toLowerCase(Locale.ROOT);
+            if (headerHost.length() > 253 || !headerHost.contains(".")) {
+                throw new IllegalArgumentException("Host header معتبر نیست.");
+            }
+            if (rawPath.isEmpty() || !rawPath.startsWith("/") || rawPath.length() > 512 ||
+                rawPath.contains(" ") || rawPath.indexOf(13) >= 0 || rawPath.indexOf(10) >= 0 || rawPath.contains("#")) {
+                throw new IllegalArgumentException("مسیر WebSocket باید با / شروع شود و فاصله یا # نداشته باشد.");
+            }
+            wsPath = rawPath;
             ports = parsePorts(portsInput.getText().toString());
         } catch (Exception ex) {
             Toast.makeText(this, ex.getMessage() == null ? "تنظیمات نامعتبر است" : ex.getMessage(), Toast.LENGTH_LONG).show();
@@ -254,12 +272,13 @@ public class MainActivity extends Activity {
         startButton.setEnabled(false);
         stopButton.setEnabled(true);
         copyButton.setEnabled(false);
+        lastCopy = "";
         progressBar.setProgress(0);
         resultsText.setText("در حال آماده‌سازی نمونه‌های IP…");
-        statusText.setText("در حال دریافت لیست رسمی Cloudflare و آماده‌سازی اسکن…");
-        progressText.setText("۰٪");
+        statusText.setText("در حال دریافت یا بازیابی آخرین فهرست IPهای Cloudflare…");
+        progressText.setText("شروع اسکن");
         scanExecutor = null;
-        Thread setupThread = new Thread(() -> runScan(host, ports, count), "hadi-netcheck-setup");
+        Thread setupThread = new Thread(() -> runScan(host, headerHost, wsPath, ports, count), "hadi-netcheck-setup");
         setupThread.setDaemon(true);
         setupThread.start();
     }
