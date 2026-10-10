@@ -1,29 +1,14 @@
-# HadiVPN-Render
+# HadiVPN / Hadi NetCheck
 
-Experimental VLESS-over-WebSocket proxy prototype. It is not a guarantee of connectivity, privacy, or anonymity, and it has not yet been deployed or end-to-end tested.
+This repository currently contains two experiments:
 
-> **Provider eligibility matters.** As checked on 2026-10-10, Render's Terms of Service state that users must not be located in, residents/citizens of, or otherwise covered by the listed excluded regions, including Iran. Do not deploy this project to Render if that restriction applies to you; confirm the current provider terms before choosing a host.
+- **Hadi NetCheck web probe**: https://hadi-netcheck.hadimoradogt.workers.dev/ . It measures browser-to-Cloudflare-Worker HTTP round-trip time and checks reachability of a few public HTTPS endpoints. Those are client-side measurements, not ICMP ping, and the web page cannot truthfully scan arbitrary candidate IPs with a custom TLS SNI.
+- **Hadi NetCheck Android scanner**: source in android-scanner/. It probes sampled Cloudflare IPv4 candidates from the Android device using TCP + TLS with the selected SNI/hostname and certificate validation. This is the component intended for actual per-IP network testing.
 
-## Limitations
+## Status and limitations
 
-- A WebSocket tunnel over an HTTP web-service ingress is not the same as a conventional UDP/TUN VPN.
-- A free hosting service may sleep, restart, throttle, or be suspended; availability under severe filtering is not guaranteed.
-- Render's free plan currently has a low monthly outbound-bandwidth allowance. Do not use an untested prototype for sensitive traffic, emergencies, or as a promise of anonymity.
+The web Worker is deployed on Cloudflare. The Android scanner source and a GitHub Actions APK build workflow are included; do not consider an APK available until the corresponding Actions run finishes successfully.
 
-## Portable deployment design
+A successful TLS test measures reachability for the tested hostname, port, and network at that moment. It does not guarantee that a VPN protocol, WebSocket path, or another hostname will work. Results can change by ISP, time, SNI, and port.
 
-The Docker image starts Caddy on the public HTTP port and Xray on loopback. Caddy serves `/health` and forwards WebSocket traffic under `/vpn` to Xray.
-
-For a compatible provider, set a private UUID as `VPN_UUID` in that provider's environment settings. Never commit the UUID or share it publicly.
-
-Client parameters for a host that permits this deployment:
-- protocol: VLESS
-- address: the host's public hostname
-- port: 443 when HTTPS/WSS is provided by the host
-- security: TLS
-- transport: WebSocket
-- path: `/vpn`
-- UUID: the private value stored as `VPN_UUID`
-- SNI/Host: the public hostname
-
-`/health` tests only the web front-end. End-to-end tunnel functionality must be verified separately.
+Never put private keys, UUIDs, or account tokens in this repository.
