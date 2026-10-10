@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<meta name="description" content="HadiVPN — اشتراک‌های عمومی به‌روز، ابزار مدیریت کانفیگ V2Ray و راهنمای اتصال">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+<title>HadiVPN | مرکز اتصال</title>
+<style>
+:root{color-scheme:dark;--bg:#09111f;--panel:#111e31;--panel2:#0d192a;--line:#283d58;--text:#edf5ff;--muted:#97abc5;--cyan:#6ce0d5;--blue:#7bbcff;--green:#6ee2ac;--amber:#ffd184;--red:#ff8995}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:radial-gradient(65% 42% at 50% 0%,#1c3c60 0%,var(--bg) 78%);line-height:1.5}
+a{color:#a9d5ff}button,input,select{font:inherit}.wrap{max-width:1100px;margin:auto;padding:16px 14px 40px}.top{display:flex;align-items:center;gap:12px;margin-bottom:17px}.mark{height:48px;width:48px;border-radius:16px;background:linear-gradient(145deg,#65baff,#6ce0d5);display:grid;place-items:center;box-shadow:0 8px 28px #3ba5d044;flex:none}.mark svg{width:35px;height:35px}.brand h1{font-size:21px;letter-spacing:-.4px;margin:0}.brand p{margin:3px 0 0;font-size:11px;color:var(--muted)}.topright{margin-right:auto;display:flex;gap:7px;flex-wrap:wrap}.smalllink{font-size:11px;color:#d7eaff;text-decoration:none;border:1px solid var(--line);background:#0d192a;padding:9px 11px;border-radius:11px}
+.hero{position:relative;overflow:hidden;border:1px solid #315375;background:linear-gradient(125deg,#183456,#12223a 60%,#101b2e);border-radius:25px;padding:25px;margin-bottom:14px}.hero:after{content:"";position:absolute;left:-75px;top:-85px;width:240px;height:240px;border-radius:50%;border:1px solid #85e4eb35;box-shadow:0 0 0 23px #85e4eb0a,0 0 0 48px #85e4eb08;pointer-events:none}.eyebrow{color:var(--cyan);font-size:10px;font-weight:900;letter-spacing:.1em}.hero h2{font-size:28px;line-height:1.5;margin:8px 0;max-width:700px}.hero p{font-size:13px;line-height:2;color:#bbcee3;max-width:760px;margin:0}.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}.tag{font-size:10px;padding:7px 10px;border:1px solid #375170;background:#0c1a2caa;border-radius:24px;color:#d9eaff}.tag.live{color:var(--green);border-color:#2d6a5b}
+.nav{display:flex;gap:7px;overflow:auto;padding:3px 0 13px}.nav a{white-space:nowrap;text-decoration:none;color:#9fb3cc;border:1px solid var(--line);background:#0f1b2d;padding:10px 13px;border-radius:12px;font-size:11px;font-weight:800}.nav a:first-child{color:#d3efff;border-color:#42688d;background:#162d47}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}.kpi{padding:14px 16px;border:1px solid var(--line);background:#111d2f;border-radius:16px}.kpi span{display:block;color:var(--muted);font-size:10px}.kpi strong{display:block;margin-top:5px;font-size:17px}.kpi small{display:block;color:#8097b5;font-size:10px;margin-top:3px}
+.sectionhead{display:flex;justify-content:space-between;gap:12px;align-items:end;margin:24px 0 12px}.sectionhead h2{margin:0;font-size:20px}.sectionhead p{margin:4px 0 0;color:var(--muted);font-size:11px;line-height:1.8}.section-label{color:var(--cyan);font-size:10px;font-weight:900}
+.feedgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{min-width:0;background:linear-gradient(150deg,#142239,#101a2a);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:0 9px 25px #0002}.card.featured{border-color:#3d7494;background:linear-gradient(150deg,#17324a,#101b2c)}.cardtop{display:flex;align-items:center;gap:10px;margin-bottom:12px}.feedicon{width:39px;height:39px;display:grid;place-items:center;border-radius:13px;background:#19354f;color:#9be4e7;flex:none}.feedicon svg{width:23px;height:23px}.card h3{font-size:14px;margin:0}.card .meta{font-size:10px;color:var(--muted);margin-top:3px}.statuspill{margin-right:auto;border:1px solid #2a6757;color:var(--green);border-radius:20px;padding:5px 8px;font-size:9px;white-space:nowrap}.card p{color:#aabbd0;font-size:11px;line-height:1.9;margin:0 0 13px;min-height:60px}.btnrow{display:flex;flex-wrap:wrap;gap:7px}.btn{min-height:40px;border-radius:11px;border:0;padding:9px 12px;cursor:pointer;font-weight:850;font-size:11px;flex:1;background:linear-gradient(110deg,#83c7ff,#83e0dc);color:#071521;text-align:center;text-decoration:none;display:inline-flex;justify-content:center;align-items:center}.btn.secondary{background:#1a2b42;color:#dceaff;border:1px solid #344d6a}.btn.ghost{background:transparent;color:#addaff;border:1px solid #34516e}.btn:disabled{opacity:.55;cursor:not-allowed}
+.note{border:1px solid #675238;background:#302719;color:#ffe0a0;border-radius:14px;padding:12px 14px;font-size:11px;line-height:1.9;margin-top:13px}.goodnote{border-color:#2f5b57;background:#0e282b;color:#b4f1df}
+.tools{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.field{min-width:0}.field label{display:block;font-size:11px;color:#d7e5f8;font-weight:800;margin-bottom:7px}.input{width:100%;min-width:0;background:#091424;border:1px solid #30455f;border-radius:11px;color:var(--text);padding:11px 12px;outline:none;font-size:12px;direction:ltr;text-align:left}.input:focus{border-color:var(--blue);box-shadow:0 0 0 3px #7bbcff1a}.fieldhint{color:#7f95b1;font-size:10px;line-height:1.8;margin-top:5px}.results{display:grid;gap:8px;margin-top:12px}.configrow{display:flex;align-items:center;gap:10px;padding:10px 11px;border:1px solid #2b3f59;border-radius:12px;background:#0c1727;min-width:0}.configtext{min-width:0;flex:1}.configtext strong{display:block;font-size:11px}.configtext small{display:block;color:var(--muted);font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:left}.copymini{border:1px solid #365775;background:#172d45;color:#c5e3ff;border-radius:9px;padding:8px 10px;font-size:10px;font-weight:800;flex:none}.empty{border:1px dashed #344965;border-radius:13px;color:var(--muted);text-align:center;padding:19px 10px;font-size:11px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.step{padding:15px;border:1px solid var(--line);background:#111e30;border-radius:16px}.num{height:28px;width:28px;display:grid;place-items:center;border-radius:9px;background:#1a3a5a;color:#aee0ff;font-weight:900;font-size:12px;margin-bottom:9px}.step strong{display:block;font-size:12px;margin-bottom:5px}.step p{color:var(--muted);font-size:11px;line-height:1.9;margin:0}
+.appbox{display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px}.appbox h3{font-size:16px;margin:0 0 5px}.appbox p{font-size:11px;color:var(--muted);line-height:1.9;margin:0;max-width:640px}.appactions{display:flex;gap:8px;flex-wrap:wrap}
+.footer{padding-top:24px;color:#7187a4;font-size:10px;line-height:2;text-align:center}.footer a{color:#91afcf}
+@media(max-width:800px){.feedgrid{grid-template-columns:1fr 1fr}.hero h2{font-size:24px}.appbox{grid-template-columns:1fr}.appactions .btn{flex:1 1 160px}}
+@media(max-width:560px){.wrap{padding:12px 9px 28px}.topright{display:none}.hero{padding:19px;border-radius:20px}.hero h2{font-size:22px}.hero p{font-size:12px}.kpis{gap:7px}.kpi{padding:11px 10px}.kpi strong{font-size:14px}.kpi small{font-size:9px}.feedgrid,.tools,.steps{grid-template-columns:1fr}.card p{min-height:auto}.sectionhead{align-items:start;flex-direction:column}.appactions{width:100%}.appactions .btn{flex:1}.card{padding:15px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+ <div class="mark"><svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M24 5 39 12v11c0 10-6 15-15 20C15 38 9 33 9 23V12L24 5Z" fill="#0D2032"/><path d="M17 18v13m0-6.5h14M31 18v13" stroke="#80DDE2" stroke-width="3.5" stroke-linecap="round"/><path d="M12 10 8 14m28-4 4 4" stroke="#F0FAFF" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+ <div class="brand"><h1>HadiVPN</h1><p>مرکز کانفیگ، اشتراک و ابزار اتصال</p></div>
+ <div class="topright"><a class="smalllink" href="https://github.com/Hadimrd/HadiVPN-Render">مخزن پروژه</a><a class="smalllink" href="#app">اپلیکیشن</a></div>
+</header>
+<section class="hero">
+ <div class="eyebrow">HADI VPN CENTER · MOBILE FIRST</div>
+ <h2>اشتراک بگیر، وارد کن، اتصال رو تست کن.</h2>
+ <p>یک پنل سبک برای دریافت اشتراک‌های عمومی V2Ray/Xray، کپی کانفیگ، راهنمای اتصال و دسترسی به ابزار بررسی IP. این سایت روی GitHub Pages منتشر می‌شود تا به Worker وابسته نباشد.</p>
+ <div class="tags"><span class="tag live">بدون نیاز به حساب</span><span class="tag">مناسب موبایل</span><span class="tag">فهرست‌ها خودکار به‌روز می‌شوند</span><span class="tag">قابلیت نصب مثل اپ</span></div>
+</section>
+<nav class="nav" aria-label="بخش‌های سایت"><a href="#subscriptions">دریافت اشتراک</a><a href="#browser">دیدن کانفیگ‌ها</a><a href="#guide">روش اتصال</a><a href="#app">اپ و به‌روزرسانی</a><a href="#diagnostics">تست شبکه</a></nav>
+<div class="kpis"><div class="kpi"><span>میزبان سایت</span><strong>GitHub Pages</strong><small>بدون وابستگی به Worker</small></div><div class="kpi"><span>روش پیشنهادی</span><strong>اشتراک به‌روز</strong><small>وارد کردن URL داخل کلاینت</small></div><div class="kpi"><span>سرویس اتصال</span><strong>سرورهای عمومی</strong><small>در دسترس بودن تضمین نمی‌شود</small></div></div>
+
+<section id="subscriptions">
+ <div class="sectionhead"><div><div class="section-label">COMMUNITY SUBSCRIPTIONS</div><h2>از اینجا کانفیگ بگیر</h2><p>فهرست‌ها از یک منبع عمومی جمع‌آوری می‌شوند و از همین سایت قابل دریافت‌اند؛ هر اشتراک را در برنامهٔ VPN خودت اضافه کن.</p></div></div>
+ <div class="feedgrid">
+  <article class="card featured"><div class="cardtop"><div class="feedicon"><svg viewBox="0 0 24 24" fill="none"><path d="m12 3 2.4 5.1 5.6.8-4 3.9.95 5.6L12 15.8l-4.95 2.6L8 12.8 4 8.9l5.6-.8L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div><div><h3>اشتراک منتخب</h3><div class="meta">حدود ۱۰۰ کانفیگ · Base64</div></div><span class="statuspill">شروع پیشنهادی</span></div><p>فهرست کم‌حجم برای شروع سریع، با اولویت‌دهی منبع به TLS و REALITY. رتبه‌بندی منبع، تضمین اتصال روی اپراتور تو نیست.</p><div class="btnrow"><button class="btn" data-copy-feed="best">کپی لینک اشتراک</button><button class="btn secondary" data-preview="best">نمایش کانفیگ‌ها</button></div><div class="fieldhint">برای افزودن در V2RayNG: لینک را کپی کن و در بخش Subscription اضافه کن.</div></article>
+  <article class="card"><div class="cardtop"><div class="feedicon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="7" r="2" fill="#132237" stroke="currentColor" stroke-width="1.5"/><circle cx="15" cy="12" r="2" fill="#132237" stroke="currentColor" stroke-width="1.5"/></svg></div><div><h3>اشتراک پشتیبان</h3><div class="meta">حدود ۱۰۰ کانفیگ دیگر · Base64</div></div></div><p>فهرست دوم برای وقتی که سرورهای اشتراک اول پاسخ نمی‌دهند. هر دو را ذخیره کن تا به‌راحتی جابه‌جا شوی.</p><div class="btnrow"><button class="btn" data-copy-feed="backup">کپی لینک اشتراک</button><button class="btn secondary" data-preview="backup">نمایش کانفیگ‌ها</button></div><div class="fieldhint">سرورها عمومی و متعلق به اشخاص ثالث‌اند؛ مالکیت یا پایداری آن‌ها با ما نیست.</div></article>
+  <article class="card"><div class="cardtop"><div class="feedicon"><svg viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.7"/><path d="M8 9h8M8 12h8M8 15h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div><div><h3>فهرست بزرگ</h3><div class="meta">فهرست خام · چندین پروتکل</div></div></div><p>برای کاربران پیشرفته یا برنامه‌هایی که فهرست بزرگی از لینک‌ها می‌خوانند. روی اینترنت ضعیف بهتر است ابتدا گزینهٔ منتخب را امتحان کنی.</p><div class="btnrow"><button class="btn" data-copy-feed="all">کپی لینک فهرست</button><a class="btn secondary" href="https://github.com/Alirewa/V2ray-Configs" target="_blank" rel="noopener noreferrer">منبع</a></div><div class="fieldhint">این فهرست حجیم‌تر است و ممکن است دانلود یا پردازش آن زمان ببرد.</div></article>
+ </div>
+ <div class="note">هشدار امنیتی: کانفیگ‌های عمومی تحت کنترل ما نیستند و ممکن است از کار بیفتند یا اپراتورشان قابل‌اعتماد نباشد. برای استفادهٔ حساس، اطلاعات محرمانه را وارد نکن و ترجیحاً از سرور شخصی یا سرویس‌دهندهٔ مورداعتماد استفاده کن. «سرور سالم» هم به معنی ناشناس‌بودن کامل نیست.</div>
+</section>
+
+<section id="browser">
+ <div class="sectionhead"><div><div class="section-label">CONFIG EXPLORER</div><h2>دیدن و کپی کانفیگ‌ها</h2><p>نمونه‌های اشتراک را از نسخهٔ میزبانی‌شده در GitHub Pages می‌خواند. در صورت عدم دسترسی به فایل‌ها، از دکمهٔ کپی لینک اشتراک بالا استفاده کن.</p></div></div>
+ <div class="card">
+  <div class="tools"><div class="field"><label for="feedSelect">فهرستی که بررسی شود</label><select class="input" id="feedSelect" style="direction:rtl;text-align:right"><option value="best">اشتراک منتخب — حدود ۱۰۰</option><option value="backup">اشتراک پشتیبان — حدود ۱۰۰</option><option value="all">فهرست بزرگ</option></select></div><div class="field"><label for="filter">فیلتر پروتکل یا آدرس</label><input class="input" id="filter" type="search" placeholder="مثلاً vless یا reality"><div class="fieldhint">فیلتر فقط روی نمونه‌هایی است که در مرورگر بارگذاری شده‌اند.</div></div></div>
+  <div class="btnrow" style="margin-top:12px"><button class="btn" id="loadFeed">بارگذاری و نمایش کانفیگ‌ها</button><button class="btn secondary" id="copyChosenLink">کپی آدرس همین اشتراک</button></div>
+  <div class="status" id="feedStatus" aria-live="polite">هنوز فهرستی بارگذاری نشده.</div>
+  <div class="results" id="configResults"><div class="empty">برای دیدن نمونه‌ها، «بارگذاری و نمایش کانفیگ‌ها» را بزن.</div></div>
+  <div class="btnrow" style="margin-top:12px"><button class="btn ghost" id="showMore" hidden>نمایش بیشتر</button></div>
+ </div>
+</section>
+
+<section id="guide">
+ <div class="sectionhead"><div><div class="section-label">QUICK START</div><h2>روش اتصال در چند قدم</h2><p>سایت خودش تونل VPN نیست؛ کانفیگ را به کلاینت سازگار می‌دهد.</p></div></div>
+ <div class="steps">
+  <div class="step"><div class="num">۱</div><strong>اشتراک را کپی کن</strong><p>از بخش بالا لینک اشتراک منتخب را کپی کن. اگر چند سرور خطا دادند، اشتراک دوم را امتحان کن.</p></div>
+  <div class="step"><div class="num">۲</div><strong>در برنامه اضافه کن</strong><p>در V2RayNG بخش Subscription را باز کن، اشتراک جدید بساز، URL را وارد کن و Update را بزن. در Hiddify از گزینهٔ افزودن پروفایل با URL استفاده کن.</p></div>
+  <div class="step"><div class="num">۳</div><strong>سرور را امتحان کن</strong><p>اتصال را روشن کن و یک سایت ساده را باز کن. سرورهای عمومی دائم تغییر می‌کنند؛ اگر یکی قطع شد، فهرست را دوباره به‌روزرسانی کن.</p></div>
+ </div>
+ <div class="note goodnote">نکته برای اینترنت مخابرات: این سایت از GitHub Pages می‌آید و به Worker نیاز ندارد؛ اما اگر خود دامنهٔ GitHub Pages یا فایل اشتراک در شبکه‌ات مسدود باشد، این راه هم از همان شبکه قابل تضمین نیست. لینک‌های جایگزینِ منبع مستقیم در پایین صفحه هستند.</div>
+</section>
+
+<section id="app">
+ <div class="sectionhead"><div><div class="section-label">ANDROID · UPDATES</div><h2>اپلیکیشن و به‌روزرسانی</h2><p>دو بخش جدا هستند: کلاینت VPN برای اتصال واقعی و اپ HadiVPN Tools برای بررسی IP و ابزارهای کمکی.</p></div></div>
+ <div class="card appbox">
+  <div><h3>HadiVPN Tools · اسکنر شبکه</h3><p>نسخهٔ ابزار اندروید امکان اسکن IPهای Cloudflare برای پیکربندی WebSocket + TLS را فراهم می‌کند؛ خودش موتور تونل VPN ندارد. آخرین APK آزمایشی را از اجرای موفق GitHub Actions دریافت کن.</p></div>
+  <div class="appactions"><a class="btn" href="https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml" target="_blank" rel="noopener noreferrer">دریافت آخرین APK</a><a class="btn secondary" href="https://github.com/2dust/v2rayNG/releases/latest" target="_blank" rel="noopener noreferrer">کلاینت واقعی V2RayNG</a></div>
+ </div>
+ <div class="card appbox" style="margin-top:11px">
+  <div><h3>نصب روی گوشی مثل اپ</h3><p>از منوی مرورگر گزینهٔ Add to Home Screen / افزودن به صفحهٔ اصلی را بزن. این نسخهٔ وب، پنل را مثل یک اپ سبک باز می‌کند و کش آفلاین دارد؛ فهرست‌ها برای به‌روزرسانی به اینترنت نیاز دارند.</p></div>
+  <div class="appactions"><button class="btn secondary" id="installPwa">افزودن به صفحهٔ اصلی</button><a class="btn ghost" href="https://github.com/Hadimrd/HadiVPN-Render" target="_blank" rel="noopener noreferrer">سورس پروژه</a></div>
+ </div>
+ <div class="note">برای حذف کامل هشدار نصب APK، صرفاً آیکون یا نام برنامه کافی نیست. اندروید ممکن است برای APK نصب‌شده از خارج فروشگاه هشدار دهد. برای آپدیت‌های قابل‌نصب روی نسخهٔ قبلی، باید از امضای ثابت و امن استفاده شود؛ APKهای Debug موقت الزاماً کلید یکسان ندارند.</div>
+</section>
+
+<section id="diagnostics">
+ <div class="sectionhead"><div><div class="section-label">NETWORK TOOLS</div><h2>ابزارهای بررسی اتصال</h2><p>نتیجه‌ها از شبکهٔ فعلی دستگاه به دست می‌آیند؛ تست وب به‌تنهایی کیفیت VPN را تضمین نمی‌کند.</p></div></div>
+ <div class="feedgrid">
+  <div class="card"><h3>اسکن IPهای Cloudflare</h3><p>برای تست TLS و WebSocket با مقادیر SNI و Host واقعی، نسخهٔ اندروید را روی همان اینترنت اجرا کن.</p><a class="btn secondary" href="https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml" target="_blank" rel="noopener noreferrer">رفتن به اسکنر</a></div>
+  <div class="card"><h3>منبع اشتراک منتخب</h3><p>اگر فایل اشتراک میزبانی‌شده باز نشد، لینک عمومی مستقیم را امتحان کن یا از کلاینتی استفاده کن که URL اشتراک را دریافت کند.</p><a class="btn secondary" href="https://raw.githubusercontent.com/Alirewa/V2ray-Configs/main/sub1.txt" target="_blank" rel="noopener noreferrer">بازکردن منبع مستقیم</a></div>
+  <div class="card"><h3>اشتراک جایگزین</h3><p>فهرست دوم از همان منبع عمومی. زنده‌بودن سرورها از شبکهٔ تو باید در خود کلاینت بررسی شود.</p><a class="btn secondary" href="https://raw.githubusercontent.com/Alirewa/V2ray-Configs/main/sub2.txt" target="_blank" rel="noopener noreferrer">بازکردن منبع پشتیبان</a></div>
+ </div>
+</section>
+<footer class="footer">HadiVPN · پروژهٔ آزاد و بدون حساب کاربری<br>سایت ثابت است؛ هیچ UUID یا کانفیگ خصوصی را در این صفحه وارد نکن. <a href="https://github.com/Hadimrd/HadiVPN-Render">کد و گزارش خطا در GitHub</a></footer>
+</div>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const feedFiles={best:"feeds/best.txt",backup:"feeds/backup.txt",all:"feeds/all.txt"};
+const directSources={best:"https://raw.githubusercontent.com/Alirewa/V2ray-Configs/main/sub1.txt",backup:"https://raw.githubusercontent.com/Alirewa/V2ray-Configs/main/sub2.txt",all:"https://raw.githubusercontent.com/Alirewa/V2ray-Configs/main/config.txt"};
+let loaded=[],visibleLimit=12,installPrompt=null;
+const urlFor=id=>new URL(feedFiles[id],location.href).href;
+async function copy(text){
+ if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);return}
+ const t=document.createElement("textarea");t.value=text;t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();const ok=document.execCommand("copy");t.remove();if(!ok)throw Error("Copy was blocked");
+}
+function status(t,ok){$("feedStatus").textContent=t;$("feedStatus").style.color=ok?"#6ee2ac":"#ffd184"}
+document.querySelectorAll("[data-copy-feed]").forEach(b=>b.addEventListener("click",async()=>{const id=b.dataset.copyFeed;try{await copy(urlFor(id));b.textContent="کپی شد ✓";setTimeout(()=>b.textContent="کپی لینک اشتراک",1800)}catch(e){status("کپی خودکار نشد؛ آدرس مستقیم زیر را کپی کن: "+urlFor(id),false)}}));
+function decodeContent(raw,id){
+ const t=raw.trim();if(/^(vless|vmess|trojan|ss|ssr|hy2|hysteria2|tuic|wireguard):\/\//m.test(t))return t;
+ let compact=t.replace(/\s+/g,"");try{const bin=atob(compact);const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));const decoded=new TextDecoder().decode(bytes);if(/(vless|vmess|trojan|ss|ssr|hy2|hysteria2|tuic):\/\//.test(decoded))return decoded}catch(e){}
+ return t;
+}
+function protocol(line){const m=line.match(/^([a-zA-Z0-9+.-]+):\/\//);return m?m[1].toUpperCase():"CONFIG"}
+function endpoint(line){try{const u=new URL(line);return u.hostname||"آدرس سرور"}catch(e){const m=line.match(/@([^:/?#]+)/);return m?m[1]:"کانفیگ آماده"}}
+function render(){
+ const query=$("filter").value.trim().toLowerCase();const filtered=loaded.filter(x=>!query||(x.line+" "+x.proto+" "+x.host).toLowerCase().includes(query));const root=$("configResults");root.replaceChildren();
+ if(!filtered.length){root.innerHTML='<div class="empty">با این فیلتر موردی پیدا نشد.</div>';$("showMore").hidden=true;return}
+ filtered.slice(0,visibleLimit).forEach((x,i)=>{const row=document.createElement("div");row.className="configrow";const info=document.createElement("div");info.className="configtext";const strong=document.createElement("strong");strong.textContent=(i+1)+". "+x.proto+" · "+x.host;const sm=document.createElement("small");sm.textContent=x.line;info.append(strong,sm);const b=document.createElement("button");b.className="copymini";b.textContent="کپی";b.addEventListener("click",async()=>{try{await copy(x.line);b.textContent="کپی شد";setTimeout(()=>b.textContent="کپی",1500)}catch(e){status("کپی خودکار مسدود شد؛ ردیف را لمس طولانی کن و متن را کپی کن.",false)}});row.append(info,b);root.append(row)});
+ $("showMore").hidden=filtered.length<=visibleLimit;$("showMore").textContent="نمایش بیشتر ("+Math.min(40,filtered.length)+")";
+}
+async function load(id){
+ $("feedSelect").value=id;visibleLimit=12;loaded=[];render();status("در حال دریافت فهرست از GitHub Pages…",true);$("loadFeed").disabled=true;
+ try{
+  let res=await fetch(urlFor(id)+"?t="+Date.now(),{cache:"no-store"});
+  if(!res.ok)throw Error("HTTP "+res.status);
+  const text=await res.text();const decoded=decodeContent(text,id);
+  loaded=decoded.split(/\r?\n/).map(s=>s.trim()).filter(s=>/^(vless|vmess|trojan|ss|ssr|hy2|hysteria2|tuic|wireguard):\/\//i.test(s)).map(line=>({line,proto:protocol(line),host:endpoint(line)}));
+  if(!loaded.length)throw Error("فهرست دانلود شد ولی فرمت آن شناخته نشد.");
+  render();status(loaded.length+" کانفیگ از این فهرست خوانده شد. زنده‌بودن آن‌ها روی اینترنت تو تضمین نشده.",true);
+ }catch(e){status("دریافت فهرست ناموفق بود ("+e.message+"). به‌جای آن لینک مستقیم منبع را کپی کن: "+directSources[id],false);$("configResults").innerHTML='<div class="empty">فهرست از این شبکه در دسترس نیست. از لینک منبع مستقیم استفاده کن.</div>'}
+ finally{$("loadFeed").disabled=false}
+}
+$("loadFeed").addEventListener("click",()=>load($("feedSelect").value));
+$("showMore").addEventListener("click",()=>{visibleLimit=Math.min(visibleLimit+12,40);render()});
+$("filter").addEventListener("input",()=>{visibleLimit=12;render()});
+$("copyChosenLink").addEventListener("click",async()=>{try{await copy(urlFor($("feedSelect").value));status("لینک اشتراک کپی شد. آن را در تنظیمات Subscription کلاینت وارد کن.",true)}catch(e){status("کپی نشد؛ لینک مستقیم فایل را از بخش «از اینجا کانفیگ بگیر» انتخاب کن.",false)}});
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;$("installPwa").textContent="نصب HadiVPN روی گوشی"});
+$("installPwa").addEventListener("click",async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null}else{status("در منوی Chrome گزینهٔ «Add to Home screen / افزودن به صفحه اصلی» را انتخاب کن.",true);location.hash="subscriptions";}});
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+fetch("./feeds/updated.json?ts="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.json():null).then(meta=>{if(meta&&meta.updatedAt){const d=new Date(meta.updatedAt);if(!Number.isNaN(d.getTime()))document.querySelector(".kpi:nth-child(2) small").textContent="آخرین همگام‌سازی: "+d.toLocaleString("fa-IR")}}).catch(()=>{});
+})();
+</script>
+</body></html>
