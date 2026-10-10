@@ -513,7 +513,7 @@ public class MainActivity extends Activity {
 
             byte[] random = new byte[16];
             new SecureRandom().nextBytes(random);
-            String wsKey = Base64.getEncoder().encodeToString(random);
+            String wsKey = Base64.encodeToString(random, Base64.NO_WRAP);
             String authority = headerHost + (port == 443 ? "" : ":" + port);
             String request = "GET " + wsPath + " HTTP/1.1\r\n"
                 + "Host: " + authority + "\r\n"
@@ -579,27 +579,39 @@ public class MainActivity extends Activity {
     private String websocketAccept(String key) throws Exception {
         MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
         byte[] digest = sha1.digest((key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").getBytes(StandardCharsets.ISO_8859_1));
-        return Base64.getEncoder().encodeToString(digest);
+        return Base64.encodeToString(digest, Base64.NO_WRAP);
     }
 
     private List<String> fetchCloudflareCidrs() {
+        List<String> direct = fetchCidrText("https://www.cloudflare.com/ips-v4");
+        if (!direct.isEmpty()) return direct;
+        // If the official IP-list hostname is blocked but this Worker still works,
+        // it can relay the authoritative list. The installed app also caches this list locally.
+        return fetchCidrText("https://hadi-netcheck.hadimoradogt.workers.dev/api/ranges");
+    }
+
+    private List<String> fetchCidrText(String endpoint) {
         HttpsURLConnection conn = null;
         try {
-            conn = (HttpsURLConnection) new URL("https://www.cloudflare.com/ips-v4").openConnection();
+            conn = (HttpsURLConnection) new URL(endpoint).openConnection();
             conn.setConnectTimeout(3500);
             conn.setReadTimeout(3500);
             conn.setRequestMethod("GET");
             conn.setUseCaches(false);
+            conn.setRequestProperty("Cache-Control", "no-cache");
             StringBuilder body = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = br.readLine()) != null && body.length() < 10000) {
                     String trimmed = line.trim();
-                    if (trimmed.matches("\\d{1,3}(?:\\.\\d{1,3}){3}/\\d{1,2}")) body.append(trimmed).append("\n");
+                    if (trimmed.matches("\\\\d{1,3}(?:\\\\.\\\\d{1,3}){3}/\\\\d{1,2}")) body.append(trimmed).append("\n");
                 }
             }
             List<String> result = new ArrayList<>();
-            for (String line : body.toString().split("\n")) if (!line.trim().isEmpty()) result.add(line.trim());
+            for (String line : body.toString().split("\n")) {
+                String value = line.trim();
+                if (value.matches("\\\\d{1,3}(?:\\\\.\\\\d{1,3}){3}/\\\\d{1,2}")) result.add(value);
+            }
             return result;
         } catch (Exception ignored) {
             return new ArrayList<>();
