@@ -1,49 +1,61 @@
-# Hadi NetCheck / HadiVPN
+# HadiVPN — مرکز کانفیگ و ابزار اتصال
 
-[![Build Hadi NetCheck APK](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml/badge.svg)](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml)
+[![Publish HadiVPN to GitHub Pages](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/deploy-pages.yml)
+[![Build HadiVPN Tools APK](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml/badge.svg)](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml)
 
-## Live panels
+## سایت اصلی
 
-- **VLESS config builder:** https://hadi-netcheck.hadimoradogt.workers.dev/v2ray
-- **Network diagnostics:** https://hadi-netcheck.hadimoradogt.workers.dev/
+**HadiVPN Center:** https://hadimrd.github.io/HadiVPN-Render/
 
-### Hadi V2Ray Studio
+The GitHub Pages site is the primary website and does not depend on the Cloudflare Worker. It contains a responsive mobile dashboard, public subscription mirrors, a config preview/copy tool, connection instructions, PWA install support, and links to Android tools and official V2RayNG releases.
 
-The builder creates a **VLESS + WebSocket + TLS URI** for import into clients such as V2RayNG or V2Box. It can parse an existing VLESS URI locally, populate the form, copy the generated link, and save it as a TXT file. A Base64 representation is available for local copying; it is not itself a hosted subscription URL.
+### Public subscription feeds
 
-The form values and UUID are processed in the browser and are not submitted to the Worker by the builder. Use an actual server address, valid UUID, SNI, Host, path, and port from a compatible server configuration.
+The Pages workflow refreshes these mirrors every six hours from the public `Alirewa/V2ray-Configs` repository:
 
-**Important:** this page builds a connection link; it does not create a VPN server or guarantee that a generated link connects. Cloudflare IPs are usable only when the domain, Cloudflare proxy, and origin server are configured appropriately. The current generator supports VLESS over WebSocket + TLS.
+- `/feeds/best.txt` — top subscription bundle (Base64 encoded).
+- `/feeds/backup.txt` — secondary subscription bundle (Base64 encoded).
+- `/feeds/all.txt` — larger plaintext config list.
 
-### Network diagnostics panel
+Example full URLs:
 
-The diagnostics panel includes:
-- browser-side RTT measurement to the deployed Worker;
-- the public IP and available Cloudflare edge metadata seen by the Worker;
-- HTTPS reachability checks from the browser;
-- a current Cloudflare official IPv4 CIDR-list endpoint at `/api/ranges`;
-- a local-only VLESS URI parser for extracting SNI, Host, WebSocket path, and port;
-- a profile saved in the visitor's browser, without uploading the whole config string or UUID;
-- links to the Android scanner source and APK build workflow.
+- https://hadimrd.github.io/HadiVPN-Render/feeds/best.txt
+- https://hadimrd.github.io/HadiVPN-Render/feeds/backup.txt
+- https://hadimrd.github.io/HadiVPN-Render/feeds/all.txt
 
-The HTTP timing shown by the web panel is not ICMP ping and does not prove that an arbitrary Cloudflare IP works for a proxy configuration.
+These are third-party public configurations, not servers operated by HadiVPN. They can fail or be untrusted. No client-side test can guarantee a connection will work on a specific operator; do not treat free public proxies as private or fully trustworthy.
 
-## Android scanner
+Source and documented refresh interval: https://github.com/Alirewa/V2ray-Configs
 
-Source: `android-scanner/`
+## Android app
 
-The Android app is intended for **VLESS + WebSocket + TLS** configurations. From the phone itself, it samples Cloudflare IPv4 candidates and checks TCP reachability, TLS/SNI certificate validation, the WebSocket upgrade response, Host, and path; it then re-tests the fastest candidates.
+The current APK is **HadiVPN Tools 1.1.0**. It has the new HadiVPN launcher icon, a link to the GitHub Pages portal, and a direct link to the official V2RayNG client. The native app still tests Cloudflare IPv4 candidates for a VLESS + WebSocket + TLS setup; it is not itself a full V2Ray/Xray VPN tunnel client.
 
-Provide the exact SNI, Host, WebSocket path, and port from your own config. The scanner does not test gRPC, raw TCP, VLESS UUID authentication, or the complete tunnel. A verified WebSocket handshake is stronger evidence than an open port but is not a guarantee the whole VPN will work.
+[Open build workflow](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml). After a successful build, download the `HadiVPN-Tools-v1.1.0-debug-APK` artifact.
 
-The official IP-range list is refreshed when reachable and cached on-device. If the official URL is blocked, the app tries the Worker relay; if that also fails, it uses the cached or bundled fallback list. With a complete international internet blackout, it cannot fetch new addresses or force blocked destinations to become reachable.
+### Stable APK signing
 
-## APK build
+The workflow supports a release-signed APK when the repository is configured with these **GitHub Actions secrets**:
 
-[Open the GitHub Actions workflow](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml). After a successful run, download the `Hadi-NetCheck-debug-APK` artifact. GitHub Actions artifacts expire after 14 days.
+- `HADIVPN_KEYSTORE_BASE64`
+- `HADIVPN_KEYSTORE_PASSWORD`
+- `HADIVPN_KEY_ALIAS`
+- `HADIVPN_KEY_PASSWORD`
 
-## Important limitations
+The keystore and passwords must be kept private and should never be committed into the repository. Without those secrets, CI builds a debug-signed APK; Android can warn about sideloaded apps, and a later debug build might not upgrade over an earlier CI build signed with a different temporary key. A signed APK still may show an “install unknown apps” prompt outside an app store. Avoid claiming this warning can be disabled safely by changing the app icon.
 
-- IP performance depends on carrier/routing, time, SNI, Host, port, and path. Results are network-specific.
-- The panel and scanner are diagnostic/configuration tools, not themselves a VPN tunnel.
-- Never commit account tokens, UUIDs, passwords, or private keys.
+## Legacy Worker endpoints
+
+The Cloudflare Worker remains available as an optional diagnostics tool:
+
+- https://hadi-netcheck.hadimoradogt.workers.dev/
+- https://hadi-netcheck.hadimoradogt.workers.dev/v2ray
+
+If the Worker is inaccessible on a carrier such as Mokhaberat, use the GitHub Pages site above. GitHub Pages itself can still be blocked by network filtering; this is not something a static site can override.
+
+## Project limitations and privacy
+
+- The static website does not relay VPN traffic and does not create a server.
+- Public subscription configs are controlled by third parties and may be offline at any time.
+- The native scanner runs connection tests from the phone, but it does not test VLESS UUID authentication or the entire VPN tunnel.
+- Config parsing/generation in the web UI is local to the browser. Never enter account tokens, private keys, or personal subscription URLs into a public issue.
