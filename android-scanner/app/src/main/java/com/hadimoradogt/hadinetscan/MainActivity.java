@@ -296,9 +296,21 @@ public class MainActivity extends Activity {
         return new ArrayList<>(selected);
     }
 
-    private void runScan(String host, List<Integer> ports, int count) {
+    private void runScan(String host, String headerHost, String wsPath, List<Integer> ports, int count) {
         List<String> cidrs = fetchCloudflareCidrs();
-        if (cidrs.isEmpty()) cidrs = fallbackCidrs();
+        final String rangeSource;
+        if (!cidrs.isEmpty()) {
+            saveCachedCidrs(cidrs);
+            rangeSource = "فهرست تازه از Cloudflare";
+        } else {
+            cidrs = loadCachedCidrs();
+            if (!cidrs.isEmpty()) {
+                rangeSource = "فهرست ذخیره‌شده؛ حالت آفلاین";
+            } else {
+                cidrs = fallbackCidrs();
+                rangeSource = "فهرست پشتیبان داخلی؛ ممکن است قدیمی باشد";
+            }
+        }
         List<Cidr> ranges = new ArrayList<>();
         for (String item : cidrs) {
             try { ranges.add(new Cidr(item.trim())); } catch (Exception ignored) {}
@@ -319,7 +331,7 @@ public class MainActivity extends Activity {
             for (int port : ports) {
                 final String fip = ip;
                 final int fp = port;
-                futures.add(queue.submit(() -> probe(fip, fp, host)));
+                futures.add(queue.submit(() -> probe(fip, fp, host, headerHost, wsPath)));
             }
         }
 
@@ -372,7 +384,7 @@ public class MainActivity extends Activity {
         CompletionService<ProbeResult> verification = new ExecutorCompletionService<>(verifyPool);
         List<Future<ProbeResult>> verificationFutures = new ArrayList<>();
         for (ProbeResult initial : shortlist) {
-            verificationFutures.add(verification.submit(() -> verify(initial.ip, initial.port, host)));
+            verificationFutures.add(verification.submit(() -> verify(initial.ip, initial.port, host, headerHost, wsPath)));
         }
         List<ProbeResult> verified = new ArrayList<>();
         try {
@@ -397,7 +409,10 @@ public class MainActivity extends Activity {
             } else verifyPool.shutdown();
         }
 
-        if (verified.isEmpty()) verified = shortlist;
+        if (verified.isEmpty()) {
+            finishUi("هیچ IP در بازآزمایی کامل WebSocket موفق نشد. SNI، Host و مسیر را دقیقاً با کانفیگت یکی کن.", "", 0);
+            return;
+        }
         Collections.sort(verified, (a,b) -> {
             if (a.successes != b.successes) return Integer.compare(b.successes, a.successes);
             return Long.compare(a.ms, b.ms);
@@ -407,19 +422,26 @@ public class MainActivity extends Activity {
         int shown = Math.min(30, verified.size());
         for (int i = 0; i < shown; i++) {
             ProbeResult r = verified.get(i);
-            output.append(String.format(Locale.US, "%2d. %s:%d   %d ms   %d/3\n", i + 1, r.ip, r.port, r.ms, Math.max(1, r.successes)));
-            copy.append(r.ip).append(":").append(r.port).append("\n");
+            output.append(String.format(Locale.US, "%2d. %s:%d   %d ms   %d/3 WS\n", i + 1, r.ip, r.port, r.ms, r.successes));
+            copy.append("IP: ").append(r.ip).append("\n")
+                .append("Port: ").append(r.port).append("\n")
+                .append("TLS SNI: ").append(host).append("\n")
+                .append("Host: ").append(headerHost).append("\n")
+                .append("Transport: WebSocket + TLS\n")
+                .append("Path: ").append(wsPath).append("\n")
+                .append("Successful WS handshakes: ").append(r.successes).append("/3\n\n");
         }
         final String finalOutput = output.toString();
         final String finalCopy = copy.toString().trim();
         final int found = successes.size();
+        final int verifiedCount = verified.size();
         runOnUiThread(() -> {
             resultsText.setText(finalOutput);
             lastCopy = finalCopy;
             copyButton.setEnabled(!lastCopy.isEmpty());
-            statusText.setText("اسکن تمام شد؛ " + found + " اتصال TLS اولیه موفق بود.");
+            statusText.setText("اسکن تمام شد؛ " + verifiedCount + " IP با WebSocket واقعی تأیید شد (از " + found + " TLS اولیه).");
             progressBar.setProgress(100);
-            progressText.setText("نمونه‌گیری: " + ips.size() + " IP · پورت‌ها: " + ports + " · SNI: " + host);
+            progressText.setText("منبع: " + rangeSource + " · نمونه: " + ips.size() + " · پورت‌ها: " + ports + " · SNI: " + host + " · Host: " + headerHost + " · Path: " + wsPath);
             startButton.setEnabled(true);
             stopButton.setEnabled(false);
         });
