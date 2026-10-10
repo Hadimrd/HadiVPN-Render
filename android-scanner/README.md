@@ -32,6 +32,6 @@ Candidate scan results are not uploaded to Hadi's Worker and are not persisted a
 ## Build
 
 A GitHub Actions workflow builds a debug APK on pushes affecting this folder:
-https://github.com/Hadimoradogt/HadiVPN-Render/actions/workflows/build-android-scanner.yml
+https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml
 
 After a successful run, download the Hadi-NetCheck-debug-APK artifact. Artifacts expire after 14 days.
