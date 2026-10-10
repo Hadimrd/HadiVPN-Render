@@ -1,5 +1,7 @@
 # Hadi NetCheck / HadiVPN
 
+![Android APK build status](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml/badge.svg)
+
 This repository contains the current Hadi NetCheck diagnostics tools and the earlier HadiVPN-Render experiment.
 
 ## Live Cloudflare panel
