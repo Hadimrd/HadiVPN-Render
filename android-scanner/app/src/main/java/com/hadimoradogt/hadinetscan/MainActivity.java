@@ -137,9 +137,9 @@ public class MainActivity extends Activity {
         settings.addView(countSpinner);
 
         settings.addView(text("پورت‌های TLS", 14, TEXT, true));
-        portsInput = edit(prefs.getString("ports", "443,2053,8443"));
+        portsInput = edit(prefs.getString("ports", "443"));
         settings.addView(portsInput);
-        settings.addView(text("پورت‌های امن رایج Cloudflare: 443, 2053, 2083, 2087, 2096, 8443", 11, MUTED, false));
+        settings.addView(text("برای تطابق دقیق با کانفیگ، فقط پورت همان کانفیگ را وارد کن (پیش‌فرض 443). برای مقایسه چند پورت، آن‌ها را با ویرگول جدا کن؛ نتیجه با IP و پورت جداگانه نمایش داده می‌شود.", 11, MUTED, false));
         page.addView(settings);
 
         LinearLayout actions = new LinearLayout(this);
