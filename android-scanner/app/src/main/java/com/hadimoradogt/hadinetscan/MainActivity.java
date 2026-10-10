@@ -79,7 +79,8 @@ public class MainActivity extends Activity {
     private volatile boolean stopScan = false;
     private volatile ExecutorService scanExecutor;
     private String lastCopy = "";
-    private String lastHost = "www.cloudflare.com";
+    private String lastHost = "your-domain.example";
+    private String cidrFetchSource = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -326,11 +327,15 @@ public class MainActivity extends Activity {
         final String rangeSource;
         if (!cidrs.isEmpty()) {
             saveCachedCidrs(cidrs);
-            rangeSource = "فهرست تازه از Cloudflare";
+            rangeSource = "به‌روزرسانی شد: " + cidrFetchSource;
         } else {
             cidrs = loadCachedCidrs();
             if (!cidrs.isEmpty()) {
-                rangeSource = "فهرست ذخیره‌شده؛ حالت آفلاین";
+                long savedAt = getSharedPreferences("hadi_netcheck", MODE_PRIVATE).getLong("cloudflare_ipv4_saved_at", 0L);
+                long ageDays = savedAt > 0 ? Math.max(0, (System.currentTimeMillis() - savedAt) / 86400000L) : -1;
+                rangeSource = ageDays >= 0
+                    ? "فهرست ذخیره‌شده آفلاین؛ " + ageDays + " روز از آخرین به‌روزرسانی"
+                    : "فهرست ذخیره‌شده آفلاین";
             } else {
                 cidrs = fallbackCidrs();
                 rangeSource = "فهرست پشتیبان داخلی؛ ممکن است قدیمی باشد";
@@ -586,10 +591,19 @@ public class MainActivity extends Activity {
 
     private List<String> fetchCloudflareCidrs() {
         List<String> direct = fetchCidrText("https://www.cloudflare.com/ips-v4");
-        if (!direct.isEmpty()) return direct;
+        if (!direct.isEmpty()) {
+            cidrFetchSource = "منبع رسمی مستقیم Cloudflare";
+            return direct;
+        }
         // If the official IP-list hostname is blocked but this Worker still works,
         // it can relay the authoritative list. The installed app also caches this list locally.
-        return fetchCidrText("https://hadi-netcheck.hadimoradogt.workers.dev/api/ranges");
+        List<String> relay = fetchCidrText("https://hadi-netcheck.hadimoradogt.workers.dev/api/ranges");
+        if (!relay.isEmpty()) {
+            cidrFetchSource = "رلهٔ پنل Hadi NetCheck";
+            return relay;
+        }
+        cidrFetchSource = "";
+        return new ArrayList<>();
     }
 
     private List<String> fetchCidrText(String endpoint) {
