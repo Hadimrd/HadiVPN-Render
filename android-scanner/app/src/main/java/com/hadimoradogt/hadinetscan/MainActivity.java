@@ -263,8 +263,8 @@ public class MainActivity extends Activity {
                 throw new IllegalArgumentException("SNI را فقط به‌شکل دامنه وارد کن.");
             }
             host = IDN.toASCII(rawHost, IDN.USE_STD3_ASCII_RULES).toLowerCase(Locale.ROOT);
-            if (host.length() > 253 || !host.contains(".") || host.startsWith(".") || host.endsWith(".")) {
-                throw new IllegalArgumentException("دامنه SNI معتبر نیست.");
+            if (host.length() > 253 || !host.contains(".") || host.startsWith(".") || host.endsWith(".") || host.matches("[0-9.]+")) {
+                throw new IllegalArgumentException("SNI باید نام دامنهٔ کانفیگ باشد، نه IP مقصد؛ مثلاً همان serverName یا SNI.");
             }
             String candidateHeader = rawHeader.isEmpty() ? host : rawHeader;
             if (candidateHeader.contains("://") || candidateHeader.contains("/") || candidateHeader.contains(":") ||
