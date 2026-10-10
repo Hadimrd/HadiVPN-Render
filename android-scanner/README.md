@@ -1,6 +1,8 @@
-# Hadi NetCheck Android Scanner
+# HadiVPN Tools Android
 
-A native Android tool for testing Cloudflare IPv4 candidates from the phone's current network.
+Current app version: **1.1.0** (versionCode 2). The app has a HadiVPN-themed launcher icon and a button to open the GitHub Pages portal.
+
+This native Android utility tests Cloudflare IPv4 candidates from the phone's current network; it is not itself a full V2Ray/Xray tunnel client. For an actual VPN connection, import a trusted subscription or config into a compatible client such as the official [V2RayNG releases](https://github.com/2dust/v2rayNG/releases/latest).
 
 ## Parameters to copy from your client config
 
@@ -22,16 +24,15 @@ The displayed measurement is elapsed TCP connect + TLS handshake + WebSocket upg
 ## Offline behavior
 
 - The app fetches Cloudflare's official IPv4 CIDR list directly when possible.
-- If the official list URL cannot be reached but the Hadi NetCheck Worker is reachable, it tries the Worker relay.
+- If the official list URL cannot be reached but the optional Hadi NetCheck Worker is reachable, it tries the Worker relay.
 - A successfully fetched list is stored locally on the device and can be reused during later disruptions.
 - If there has never been a successful fetch, it uses a bundled fallback list that may be older.
-- In a total international connection outage, the app cannot fetch new IP ranges or make blocked destinations reachable. It only preserves the scan tool and list offline.
+- In a total international connection outage, the app cannot fetch new IP ranges or make blocked destinations reachable.
 
 Candidate scan results are not uploaded to Hadi's Worker and are not persisted as a scan history. Only non-secret scan settings and the IP range list are stored locally in app preferences.
 
-## Build
+## APK build and signing
 
-A GitHub Actions workflow builds a debug APK on pushes affecting this folder:
-https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml
+[GitHub Actions build workflow](https://github.com/Hadimrd/HadiVPN-Render/actions/workflows/build-android-scanner.yml).
 
-After a successful run, download the Hadi-NetCheck-debug-APK artifact. Artifacts expire after 14 days.
+Download the `HadiVPN-Tools-v1.1.0-debug-APK` artifact after a successful run. Debug artifacts expire after 30 days. The workflow can build a stable release-signed APK if the private keystore is configured through Actions secrets. Never commit a signing keystore or its password to this repository. APKs installed outside a trusted app store can still trigger Android's unknown-source or Play Protect warnings.
