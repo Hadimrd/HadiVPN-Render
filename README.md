@@ -1,25 +1,29 @@
 # HadiVPN-Render
 
-Experimental VLESS-over-WebSocket proxy for testing on Render's HTTP web-service ingress.
+Experimental VLESS-over-WebSocket proxy prototype. It is not a guarantee of connectivity, privacy, or anonymity, and it has not yet been deployed or end-to-end tested.
 
-> This is an experiment, not a guarantee of connectivity or anonymity. A Render free web service is not a conventional UDP/TUN VPN server. The configuration uses WebSocket over HTTPS at Render's public HTTP endpoint, and may be blocked, throttled, suspended, or go offline due to free-tier limits. Do not use it for sensitive traffic or rely on it for emergency access.
+> **Provider eligibility matters.** As checked on 2026-10-10, Render's Terms of Service state that users must not be located in, residents/citizens of, or otherwise covered by the listed excluded regions, including Iran. Do not deploy this project to Render if that restriction applies to you; confirm the current provider terms before choosing a host.
 
-## Before deploying
+## Limitations
 
-1. Set a private UUID in the Render environment as `VPN_UUID`. Do not put the UUID in this repository or share it in public.
-2. Set `PORT` to `10000` only if Render does not supply it automatically.
-3. Configure the client using the VLESS + WebSocket + TLS parameters:
-   - address: the deployed `.onrender.com` hostname
-   - port: 443
-   - security: TLS
-   - transport: WebSocket
-   - path: `/vpn`
-   - UUID: the value stored in `VPN_UUID`
-   - SNI/Host: the deployed `.onrender.com` hostname
-4. Test only after Render reports the service as Live. `/health` checks the web front-end, not end-to-end tunnel functionality.
+- A WebSocket tunnel over an HTTP web-service ingress is not the same as a conventional UDP/TUN VPN.
+- A free hosting service may sleep, restart, throttle, or be suspended; availability under severe filtering is not guaranteed.
+- Render's free plan currently has a low monthly outbound-bandwidth allowance. Do not use an untested prototype for sensitive traffic, emergencies, or as a promise of anonymity.
 
-## Run
+## Portable deployment design
 
-The Docker image starts Caddy on the public Render port and Xray on loopback. Caddy serves `/health` and forwards WebSocket traffic under `/vpn` to Xray.
+The Docker image starts Caddy on the public HTTP port and Xray on loopback. Caddy serves `/health` and forwards WebSocket traffic under `/vpn` to Xray.
 
-Keep secrets outside Git, and do not add a public unauthenticated account.
+For a compatible provider, set a private UUID as `VPN_UUID` in that provider's environment settings. Never commit the UUID or share it publicly.
+
+Client parameters for a host that permits this deployment:
+- protocol: VLESS
+- address: the host's public hostname
+- port: 443 when HTTPS/WSS is provided by the host
+- security: TLS
+- transport: WebSocket
+- path: `/vpn`
+- UUID: the private value stored as `VPN_UUID`
+- SNI/Host: the public hostname
+
+`/health` tests only the web front-end. End-to-end tunnel functionality must be verified separately.
