@@ -495,21 +495,21 @@ public class MainActivity extends Activity {
             new SecureRandom().nextBytes(random);
             String wsKey = Base64.getEncoder().encodeToString(random);
             String authority = headerHost + (port == 443 ? "" : ":" + port);
-            String request = "GET " + wsPath + " HTTP/1.1\\r\\n"
-                + "Host: " + authority + "\\r\\n"
-                + "Upgrade: websocket\\r\\n"
-                + "Connection: Upgrade\\r\\n"
-                + "Sec-WebSocket-Key: " + wsKey + "\\r\\n"
-                + "Sec-WebSocket-Version: 13\\r\\n"
-                + "User-Agent: HadiNetCheck/1.1\\r\\n"
-                + "\\r\\n";
+            String request = "GET " + wsPath + " HTTP/1.1\r\n"
+                + "Host: " + authority + "\r\n"
+                + "Upgrade: websocket\r\n"
+                + "Connection: Upgrade\r\n"
+                + "Sec-WebSocket-Key: " + wsKey + "\r\n"
+                + "Sec-WebSocket-Version: 13\r\n"
+                + "User-Agent: HadiNetCheck/1.1\r\n"
+                + "\r\n";
             OutputStream out = tls.getOutputStream();
             out.write(request.getBytes(StandardCharsets.ISO_8859_1));
             out.flush();
 
             BufferedInputStream in = new BufferedInputStream(tls.getInputStream());
             String statusLine = readHttpLine(in, 2048);
-            if (statusLine == null || !statusLine.matches("HTTP/1\\\\.[01] 101(?: .*)?")) {
+            if (statusLine == null || !statusLine.matches("HTTP/1\\.[01] 101(?: .*)?")) {
                 return new ProbeResult(ip, port, false, Long.MAX_VALUE, 0);
             }
             java.util.Map<String, String> headers = new java.util.HashMap<>();
@@ -545,10 +545,10 @@ public class MainActivity extends Activity {
         java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
         int b;
         while (buffer.size() <= max && (b = in.read()) != -1) {
-            if (b == '\\n') {
+            if (b == '\n') {
                 byte[] bytes = buffer.toByteArray();
                 int len = bytes.length;
-                if (len > 0 && bytes[len - 1] == '\\r') len--;
+                if (len > 0 && bytes[len - 1] == '\r') len--;
                 return new String(bytes, 0, len, StandardCharsets.ISO_8859_1);
             }
             buffer.write(b);
@@ -585,6 +585,35 @@ public class MainActivity extends Activity {
             return new ArrayList<>();
         } finally {
             if (conn != null) conn.disconnect();
+        }
+    }
+
+    private void saveCachedCidrs(List<String> cidrs) {
+        try {
+            StringBuilder saved = new StringBuilder();
+            for (String cidr : cidrs) {
+                if (cidr != null && cidr.contains("/") && cidr.length() < 32) saved.append(cidr.trim()).append("\n");
+            }
+            if (saved.length() > 0) {
+                getSharedPreferences("hadi_netcheck", MODE_PRIVATE).edit()
+                    .putString("cloudflare_ipv4_cidrs", saved.toString())
+                    .putLong("cloudflare_ipv4_saved_at", System.currentTimeMillis())
+                    .apply();
+            }
+        } catch (Exception ignored) {}
+    }
+
+    private List<String> loadCachedCidrs() {
+        try {
+            String saved = getSharedPreferences("hadi_netcheck", MODE_PRIVATE).getString("cloudflare_ipv4_cidrs", "");
+            List<String> result = new ArrayList<>();
+            for (String line : saved.split("\n")) {
+                String value = line.trim();
+                if (value.contains("/") && value.length() < 32) result.add(value);
+            }
+            return result;
+        } catch (Exception ignored) {
+            return new ArrayList<>();
         }
     }
 
