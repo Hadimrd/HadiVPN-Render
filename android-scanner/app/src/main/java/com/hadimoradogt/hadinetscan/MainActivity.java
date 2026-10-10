@@ -462,10 +462,10 @@ public class MainActivity extends Activity {
 
     private List<ProbeResult> unusedResults() { return new ArrayList<>(); }
 
-    private ProbeResult verify(String ip, int port, String host) {
+    private ProbeResult verify(String ip, int port, String host, String headerHost, String wsPath) {
         List<Long> times = new ArrayList<>();
         for (int i = 0; i < 3 && !stopScan; i++) {
-            ProbeResult r = probe(ip, port, host);
+            ProbeResult r = probe(ip, port, host, headerHost, wsPath);
             if (r.ok) times.add(r.ms);
         }
         if (times.isEmpty()) return new ProbeResult(ip, port, false, Long.MAX_VALUE, 0);
@@ -474,22 +474,63 @@ public class MainActivity extends Activity {
         return new ProbeResult(ip, port, true, median, times.size());
     }
 
-    private ProbeResult probe(String ip, int port, String host) {
+    private ProbeResult probe(String ip, int port, String host, String headerHost, String wsPath) {
         if (stopScan || Thread.currentThread().isInterrupted()) return new ProbeResult(ip, port, false, Long.MAX_VALUE, 0);
         long start = System.nanoTime();
         Socket raw = new Socket();
         SSLSocket tls = null;
         try {
             raw.connect(new InetSocketAddress(ip, port), 1300);
-            raw.setSoTimeout(1800);
+            raw.setSoTimeout(2200);
             SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             tls = (SSLSocket) factory.createSocket(raw, host, port, true);
             SSLParameters params = tls.getSSLParameters();
             params.setEndpointIdentificationAlgorithm("HTTPS");
             params.setServerNames(Collections.singletonList(new SNIHostName(host)));
             tls.setSSLParameters(params);
-            tls.setSoTimeout(1800);
+            tls.setSoTimeout(2200);
             tls.startHandshake();
+
+            byte[] random = new byte[16];
+            new SecureRandom().nextBytes(random);
+            String wsKey = Base64.getEncoder().encodeToString(random);
+            String authority = headerHost + (port == 443 ? "" : ":" + port);
+            String request = "GET " + wsPath + " HTTP/1.1\\r\\n"
+                + "Host: " + authority + "\\r\\n"
+                + "Upgrade: websocket\\r\\n"
+                + "Connection: Upgrade\\r\\n"
+                + "Sec-WebSocket-Key: " + wsKey + "\\r\\n"
+                + "Sec-WebSocket-Version: 13\\r\\n"
+                + "User-Agent: HadiNetCheck/1.1\\r\\n"
+                + "\\r\\n";
+            OutputStream out = tls.getOutputStream();
+            out.write(request.getBytes(StandardCharsets.ISO_8859_1));
+            out.flush();
+
+            BufferedInputStream in = new BufferedInputStream(tls.getInputStream());
+            String statusLine = readHttpLine(in, 2048);
+            if (statusLine == null || !statusLine.matches("HTTP/1\\\\.[01] 101(?: .*)?")) {
+                return new ProbeResult(ip, port, false, Long.MAX_VALUE, 0);
+            }
+            java.util.Map<String, String> headers = new java.util.HashMap<>();
+            int headerBytes = statusLine.length();
+            while (headerBytes < 16384) {
+                String line = readHttpLine(in, 4096);
+                if (line == null) return new ProbeResult(ip, port, false, Long.MAX_VALUE, 0);
+                headerBytes += line.length() + 2;
+                if (line.isEmpty()) break;
+                int colon = line.indexOf(':');
+                if (colon > 0) headers.put(line.substring(0, colon).trim().toLowerCase(Locale.ROOT), line.substring(colon + 1).trim());
+            }
+            String upgrade = headers.getOrDefault("upgrade", "");
+            String connection = headers.getOrDefault("connection", "");
+            String accept = headers.getOrDefault("sec-websocket-accept", "");
+            String expectedAccept = websocketAccept(wsKey);
+            if (!"websocket".equalsIgnoreCase(upgrade)
+                || !connection.toLowerCase(Locale.ROOT).contains("upgrade")
+                || !expectedAccept.equals(accept)) {
+                return new ProbeResult(ip, port, false, Long.MAX_VALUE, 0);
+            }
             long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
             return new ProbeResult(ip, port, true, elapsed, 1);
         } catch (Exception ignored) {
@@ -498,6 +539,27 @@ public class MainActivity extends Activity {
             try { if (tls != null) tls.close(); } catch (Exception ignored) {}
             try { raw.close(); } catch (Exception ignored) {}
         }
+    }
+
+    private String readHttpLine(BufferedInputStream in, int max) throws java.io.IOException {
+        java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+        int b;
+        while (buffer.size() <= max && (b = in.read()) != -1) {
+            if (b == '\\n') {
+                byte[] bytes = buffer.toByteArray();
+                int len = bytes.length;
+                if (len > 0 && bytes[len - 1] == '\\r') len--;
+                return new String(bytes, 0, len, StandardCharsets.ISO_8859_1);
+            }
+            buffer.write(b);
+        }
+        return null;
+    }
+
+    private String websocketAccept(String key) throws Exception {
+        MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+        byte[] digest = sha1.digest((key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11").getBytes(StandardCharsets.ISO_8859_1));
+        return Base64.getEncoder().encodeToString(digest);
     }
 
     private List<String> fetchCloudflareCidrs() {
