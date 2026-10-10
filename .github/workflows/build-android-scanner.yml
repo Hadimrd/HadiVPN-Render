@@ -1,4 +1,4 @@
-name: Build Hadi NetCheck APK
+name: Build HadiVPN Tools APK
 
 on:
   push:
@@ -14,7 +14,7 @@ permissions:
 jobs:
   build-apk:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -28,7 +28,6 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          # The legacy "tools" SDK package no longer exists on current Android SDK repositories.
           packages: platform-tools
 
       - name: Accept Android SDK licenses
@@ -43,12 +42,76 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build debug APK
-        run: gradle --no-daemon -p android-scanner assembleDebug
+        run: gradle --no-daemon -p android-scanner clean assembleDebug
 
-      - name: Upload APK
+      - name: Verify and package debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp android-scanner/app/build/outputs/apk/debug/app-debug.apk dist/HadiVPN-Tools-v1.1.0-debug.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose dist/HadiVPN-Tools-v1.1.0-debug.apk
+          sha256sum dist/HadiVPN-Tools-v1.1.0-debug.apk | tee dist/SHA256SUMS.txt
+          {
+            echo "### HadiVPN Tools v1.1.0"
+            echo "- Debug APK generated and signature verification passed."
+            echo "- Debug builds may not upgrade over an APK signed with a different key."
+            echo "- To get consistent release updates, configure a private signing keystore using repository Actions secrets."
+            echo
+            echo 'SHA-256:'
+            cat dist/SHA256SUMS.txt
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: Hadi-NetCheck-debug-APK
-          path: android-scanner/app/build/outputs/apk/debug/app-debug.apk
+          name: HadiVPN-Tools-v1.1.0-debug-APK
+          path: dist/*
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
+
+      - name: Check optional release signing secrets
+        id: release-signing
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.HADIVPN_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.HADIVPN_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.HADIVPN_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.HADIVPN_KEY_PASSWORD }}
+        run: |
+          if [[ -n "$KEYSTORE_BASE64" && -n "$KEYSTORE_PASSWORD" && -n "$KEY_ALIAS" && -n "$KEY_PASSWORD" ]]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/hadivpn-release.jks"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "Release signing secrets are not configured; signed release APK was not built." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Build signed release APK
+        if: steps.release-signing.outputs.available == 'true'
+        env:
+          HADIVPN_KEYSTORE_FILE: ${{ runner.temp }}/hadivpn-release.jks
+          HADIVPN_KEYSTORE_PASSWORD: ${{ secrets.HADIVPN_KEYSTORE_PASSWORD }}
+          HADIVPN_KEY_ALIAS: ${{ secrets.HADIVPN_KEY_ALIAS }}
+          HADIVPN_KEY_PASSWORD: ${{ secrets.HADIVPN_KEY_PASSWORD }}
+        run: gradle --no-daemon -p android-scanner assembleRelease
+
+      - name: Verify and package signed release
+        if: steps.release-signing.outputs.available == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp android-scanner/app/build/outputs/apk/release/app-release.apk dist/HadiVPN-Tools-v1.1.0-release-signed.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose dist/HadiVPN-Tools-v1.1.0-release-signed.apk
+          sha256sum dist/HadiVPN-Tools-v1.1.0-release-signed.apk >> dist/SHA256SUMS.txt
+
+      - name: Upload signed release APK
+        if: steps.release-signing.outputs.available == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: HadiVPN-Tools-v1.1.0-signed-release-APK
+          path: |
+            dist/HadiVPN-Tools-v1.1.0-release-signed.apk
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
