@@ -246,8 +246,10 @@ public class MainActivity extends Activity {
         resultsText.setText("در حال آماده‌سازی نمونه‌های IP…");
         statusText.setText("در حال دریافت لیست رسمی Cloudflare و آماده‌سازی اسکن…");
         progressText.setText("۰٪");
-        scanExecutor = Executors.newSingleThreadExecutor();
-        scanExecutor.submit(() -> runScan(host, ports, count));
+        scanExecutor = null;
+        Thread setupThread = new Thread(() -> runScan(host, ports, count), "hadi-netcheck-setup");
+        setupThread.setDaemon(true);
+        setupThread.start();
     }
 
     private List<Integer> parsePorts(String source) {
@@ -343,14 +345,16 @@ public class MainActivity extends Activity {
         }
         List<ProbeResult> verified = new ArrayList<>();
         try {
-            for (int i = 0; i < verificationFutures.size() && !stopScan; i++) {
-                Future<ProbeResult> f = verification.poll(4000, TimeUnit.MILLISECONDS);
+            int completedVerifications = 0;
+            while (completedVerifications < verificationFutures.size() && !stopScan) {
+                Future<ProbeResult> f = verification.poll(400, TimeUnit.MILLISECONDS);
                 if (f == null) continue;
+                completedVerifications++;
                 try {
                     ProbeResult r = f.get();
                     if (r.ok) verified.add(r);
                 } catch (Exception ignored) {}
-                final int done = i + 1;
+                final int done = completedVerifications;
                 runOnUiThread(() -> progressText.setText("تأیید پایداری: " + done + " / " + verificationFutures.size()));
             }
         } catch (InterruptedException ignored) {
