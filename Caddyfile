@@ -1,0 +1,9 @@
+:{$PORT} {
+    @health path /health
+    respond @health "HadiVPN gateway is alive" 200
+
+    @vpn path /vpn
+    reverse_proxy @vpn 127.0.0.1:10001
+
+    respond "HadiVPN experimental gateway" 200
+}
