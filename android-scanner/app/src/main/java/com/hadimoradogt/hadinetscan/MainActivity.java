@@ -58,6 +58,8 @@ public class MainActivity extends Activity {
     private static final int GREEN = Color.rgb(87, 220, 166);
 
     private EditText hostInput;
+    private EditText hostHeaderInput;
+    private EditText pathInput;
     private EditText portsInput;
     private Spinner countSpinner;
     private TextView statusText;
@@ -102,10 +104,20 @@ public class MainActivity extends Activity {
         page.addView(intro);
 
         LinearLayout settings = card();
-        settings.addView(text("دامنه SNI / Host", 14, TEXT, true));
-        hostInput = edit("www.cloudflare.com");
+        settings.addView(text("SNI / دامنه TLS کانفیگ", 14, TEXT, true));
+        hostInput = edit("your-domain.example");
         settings.addView(hostInput);
-        settings.addView(text("فقط نام دامنه وارد کن، بدون https:// یا مسیر. برای تنظیم خاص خودت، دامنه‌ای را وارد کن که واقعاً از Cloudflare عبور می‌کند.", 11, MUTED, false));
+        settings.addView(text("همان Server Name یا SNI را از کانفیگت کپی کن؛ دامنهٔ نمونه را با دامنهٔ واقعی خودت عوض کن.", 11, MUTED, false));
+
+        settings.addView(text("Host header (اختیاری)", 14, TEXT, true));
+        hostHeaderInput = edit("");
+        settings.addView(hostHeaderInput);
+        settings.addView(text("اگر Host در کانفیگ با SNI یکی است خالی بگذار؛ در غیر این صورت Host را جدا وارد کن.", 11, MUTED, false));
+
+        settings.addView(text("مسیر WebSocket", 14, TEXT, true));
+        pathInput = edit("/ws");
+        settings.addView(pathInput);
+        settings.addView(text("برای کانفیگ VLESS + WebSocket + TLS همین مسیر باید با path کانفیگ برابر باشد. این نسخه gRPC یا TCP خام را بررسی نمی‌کند.", 11, MUTED, false));
 
         settings.addView(text("تعداد نمونه IP", 14, TEXT, true));
         countSpinner = new Spinner(this);
